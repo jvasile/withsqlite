@@ -130,7 +130,7 @@ a.itervalues() 	return an iterator over the mapping's values
 
 if __name__=="__main__":
    ## This would really be better as proper tests
-   with sqlite_db("data/test") as db:
+   with sqlite_db("test") as db:
       db.clear()
       db['a']="test"
       db['as']="test"
