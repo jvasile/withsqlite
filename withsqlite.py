@@ -50,6 +50,64 @@ a.popitem() 	remove and return an arbitrary (key, value) pair
 a.iteritems() 	return an iterator over (key, value) pairs
 a.iterkeys() 	return an iterator over the mapping's keys
 a.itervalues() 	return an iterator over the mapping's values
+
+>>> with sqlite_db("test") as db:
+...    db.clear()
+...    db.items()
+... 
+[]
+>>> with sqlite_db("test") as db:
+...    db['a']="test"
+...    db.items()
+... 
+[(u'a', u'test')]
+>>> with sqlite_db("test") as db:
+...    db['as']="test"
+...    db.items()
+... 
+[(u'a', u'test'), (u'as', u'test')]
+>>> with sqlite_db("test") as db:
+...    db['b']=[1,2,3,4,5]
+...    del db['b']
+... 
+>>> with sqlite_db("test") as db:
+...    db.items()
+...    len(db)
+... 
+[(u'a', u'test'), (u'as', u'test')]
+2
+>>> with sqlite_db("test") as db:
+...    db.keys()
+... 
+[u'a', u'as']
+>>> with sqlite_db("test") as db:
+...    db.values()
+... 
+[u'test', u'test']
+>>> with sqlite_db("test") as db:
+...    db.get('b',5)
+... 
+5
+>>> with sqlite_db("test") as db:
+...    db.get('b')
+... 
+>>> with sqlite_db("test") as db:
+...    db.get('c',5)
+... 
+5
+>>> with sqlite_db("test") as db:
+...    'as' in db
+... 
+True
+>>> with sqlite_db("test") as db:
+...    'asdf' not in db
+... 
+True
+>>> with sqlite_db("test") as db:
+...    db.has_key('as')
+...
+True
+>>> 
 """
 
    def __init__(self, fname):
@@ -129,22 +187,5 @@ a.itervalues() 	return an iterator over the mapping's values
       self.crsr.execute("delete from store")
 
 if __name__=="__main__":
-   ## This would really be better as proper tests
-   with sqlite_db("test") as db:
-      db.clear()
-      db['a']="test"
-      db['as']="test"
-      db['b']=[1,2,3,4,5]
-      db['c']=[1,2,3,4,5]
-      db['d']="who?"
-      del db['b']
-      print len(db)
-      print db.keys()
-      print db.values()
-      print db.items()
-      print db.get('b',5)
-      print db.get('b')
-      print db.get('c',5)
-      print 'as' in db
-      print 'asdf' not in db
-      print db.has_key('as')
+   import doctest
+   doctest.testmod()
