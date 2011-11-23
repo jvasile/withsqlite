@@ -112,11 +112,11 @@ a.itervalues() 	return an iterator over the mapping's values
    def values(self):
       """a.values() 	a copy of a's list of values"""
       self.crsr.execute("select val from store")
-      return [f[0] for f in self.crsr.fetchall()]
+      return [json.loads(f[0]) for f in self.crsr.fetchall()]
    def items(self):
       """a.items() 	a copy of a's list of (key, value) pairs"""
       self.crsr.execute("select * from store")
-      return self.crsr.fetchall()
+      return [(f[0], json.loads(f[1])) for f in self.crsr.fetchall()]
    def get(self, k, x=None):
       """a.get(k[, x]) 	a[k] if k in a, else x """
       try:
