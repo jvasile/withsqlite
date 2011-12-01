@@ -110,8 +110,9 @@ True
 >>> 
 """
 
-   def __init__(self, fname):
+   def __init__(self, fname, autocommit=False):
       self.fname = fname + ".sqlite3"
+      self.autocomit = autocommit
    def __enter__(self):
       if not os.path.exists(self.fname):
          self.make_db()
@@ -144,6 +145,8 @@ True
          self.crsr.execute("update or fail store set val=? where key==?", [self.jsonize(val), key])
       except KeyError:
          self.crsr.execute("insert into store values (?, ?)", [key, self.jsonize(val)])
+
+      if self.autocommit: self.commit()
    def __getitem__(self, key):
       """a[k] 	the item of a with key k 	(1), (10)"""
       self.crsr.execute('select val from store where key=?', [key])
@@ -186,6 +189,7 @@ True
    def clear(self):
       """a.clear() 	remove all items from a"""
       self.crsr.execute("delete from store")
+      if self.autocommit: self.commit()
 
 if __name__=="__main__":
    import doctest
