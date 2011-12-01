@@ -181,7 +181,8 @@ True
          return self.__getitem__(k)
       except KeyError:
          return x
-
+   def commit(self):
+      self.conn.commit()
    def clear(self):
       """a.clear() 	remove all items from a"""
       self.crsr.execute("delete from store")
