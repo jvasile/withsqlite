@@ -112,7 +112,7 @@ True
 
    def __init__(self, fname, autocommit=False):
       self.fname = fname + ".sqlite3"
-      self.autocomit = autocommit
+      self.autocommit = autocommit
    def __enter__(self):
       if not os.path.exists(self.fname):
          self.make_db()
@@ -124,7 +124,6 @@ True
    def __exit__(self, type, value, traceback):
       self.conn.commit()
       self.crsr.close()
-
    def make_db(self):
       conn = sqlite3.connect(self.fname)
       c = conn.cursor()
