@@ -117,6 +117,9 @@ True
       if not os.path.exists(self.fname):
          self.make_db()
       self.conn = sqlite3.connect(self.fname)
+      c = self.conn.cursor()
+      c.execute('''create table if not exists store (key text unique, val text)''')
+      self.conn.commit()
       self.crsr = self.conn.cursor()
       return self
    def __exit__(self, type, value, traceback):
@@ -125,9 +128,12 @@ True
    def make_db(self):
       conn = sqlite3.connect(self.fname)
       c = conn.cursor()
-      c.execute('''create table store (key text unique, val text)''')
+      c.execute('''create table if not exists store (key text unique, val text)''')
       conn.commit()
       c.close()
+   def commit(self):
+      """This should rarely be necessary."""
+      self.conn.commit()
    def __delitem__(self, key):
       """del a[k] 	remove a[k] from a"""
       self.crsr.execute("delete from store where key=?", [key])
