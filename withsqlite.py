@@ -117,14 +117,14 @@ True
       if not os.path.exists(self.fname):
          self.make_db()
       self.conn = sqlite3.connect(self.fname)
-      c = self.conn.cursor()
-      c.execute('''create table if not exists store (key text unique, val text)''')
-      self.conn.commit()
       self.crsr = self.conn.cursor()
+      self.crsr.execute('''create table if not exists store (key text unique, val text)''')
+      self.conn.commit()
       return self
    def __exit__(self, type, value, traceback):
       self.conn.commit()
       self.crsr.close()
+
    def make_db(self):
       conn = sqlite3.connect(self.fname)
       c = conn.cursor()
