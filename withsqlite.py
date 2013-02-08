@@ -110,15 +110,16 @@ True
 >>> 
 """
 
-   def __init__(self, fname, autocommit=False):
+   def __init__(self, fname, autocommit=False, table="store"):
       self.fname = fname + ".sqlite3"
       self.autocommit = autocommit
+      self.table = table
    def __enter__(self):
       if not os.path.exists(self.fname):
          self.make_db()
       self.conn = sqlite3.connect(self.fname)
       self.crsr = self.conn.cursor()
-      self.crsr.execute('''create table if not exists store (key text unique, val text)''')
+      self.crsr.execute('''create table if not exists %s (key text unique, val text)''' % self.table)
       self.conn.commit()
       return self
    def __exit__(self, type, value, traceback):
@@ -127,7 +128,7 @@ True
    def make_db(self):
       conn = sqlite3.connect(self.fname)
       c = conn.cursor()
-      c.execute('''create table if not exists store (key text unique, val text)''')
+      c.execute('''create table if not exists %s (key text unique, val text)''' % self.table)
       conn.commit()
       c.close()
    def commit(self):
@@ -135,7 +136,7 @@ True
       self.conn.commit()
    def __delitem__(self, key):
       """del a[k] 	remove a[k] from a"""
-      self.crsr.execute("delete from store where key=?", [key])
+      self.crsr.execute("delete from %s where key=?" % self.table, [key])
    def jsonize(self,val):
       "If it's just a string, serialize it ourselves"
       if isinstance(val, basestring):
@@ -147,14 +148,14 @@ True
       try:
          if val == self.__getitem__(key):
             return
-         self.crsr.execute("update or fail store set val=? where key==?", [self.jsonize(val), key])
+         self.crsr.execute("update or fail %s set val=? where key==?" % self.table, [self.jsonize(val), key])
       except KeyError:
-         self.crsr.execute("insert into store values (?, ?)", [key, self.jsonize(val)])
+         self.crsr.execute("insert into %s values (?, ?)" % self.table, [key, self.jsonize(val)])
 
       if self.autocommit: self.commit()
    def __getitem__(self, key):
       """a[k] 	the item of a with key k 	(1), (10)"""
-      self.crsr.execute('select val from store where key=?', [key])
+      self.crsr.execute('select val from %s where key=?' % self.table, [key])
       try:
          f = self.crsr.fetchone()[0]
       except TypeError:
@@ -163,25 +164,25 @@ True
    def __contains__(self, key):
       """k in a 	True if a has a key k, else False
          k not in a 	Equivalent to not k in a"""
-      self.crsr.execute("select COUNT(*) from store where key=?", [key])
+      self.crsr.execute("select COUNT(*) from %s where key=?" % self.table, [key])
       return self.crsr.fetchone()[0] != 0
    def has_key(self, key):
       return self.__contains__(key)
    def __len__(self):
       """len(a) 	the number of items in a"""
-      self.crsr.execute("select COUNT(*) from store")
+      self.crsr.execute("select COUNT(*) from %s" % self.table)
       return self.crsr.fetchone()[0]
    def keys(self):
       """a.keys() 	a copy of a's list of keys"""
-      self.crsr.execute("select key from store")
+      self.crsr.execute("select key from %s" % self.table)
       return [f[0] for f in self.crsr.fetchall()]
    def values(self):
       """a.values() 	a copy of a's list of values"""
-      self.crsr.execute("select val from store")
+      self.crsr.execute("select val from %s" % self.table)
       return [json.loads(f[0]) for f in self.crsr.fetchall()]
    def items(self):
       """a.items() 	a copy of a's list of (key, value) pairs"""
-      self.crsr.execute("select * from store")
+      self.crsr.execute("select * from %s" % self.table)
       return [(f[0], json.loads(f[1])) for f in self.crsr.fetchall()]
    def get(self, k, x=None):
       """a.get(k[, x]) 	a[k] if k in a, else x """
@@ -193,7 +194,7 @@ True
       self.conn.commit()
    def clear(self):
       """a.clear() 	remove all items from a"""
-      self.crsr.execute("delete from store")
+      self.crsr.execute("delete from %s" % self.table)
       if self.autocommit: self.commit()
 
 if __name__=="__main__":
