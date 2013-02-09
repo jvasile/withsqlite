@@ -35,12 +35,23 @@ with sqlite_db("filename") as db:
    db['aaa'] = {'test':'ok'}
    print db.items()
 
+Specify a table to have one sqlite db hold multiple dicts:
+
+with sqlite_db("filename", table="fruit") as db:
+   db['citrus'] = ['orange', 'grapefruit']
+   print db.items()
+
+If you change the dict in any way, its state will differ from the
+state of the sqlite database.  Changes are committed to disk when you
+close the database connection, manually call commit, or (if you've set
+autocommit to True) after each assignment.
+
 BUGS:
 
 vals are json serialized before being written, so if you can't
 serialize it, you can't put it in the dict.
 
-Unimplemented mapping API:
+Unimplemented mapping API: 
 a.copy() 	a (shallow) copy of a 	
 a.update([b]) 	updates a with key/value pairs from b, overwriting existing keys, returns None 
 a.fromkeys(seq[, value]) 	Creates a new dictionary with keys from seq and values set to value 
@@ -50,6 +61,8 @@ a.popitem() 	remove and return an arbitrary (key, value) pair
 a.iteritems() 	return an iterator over (key, value) pairs
 a.iterkeys() 	return an iterator over the mapping's keys
 a.itervalues() 	return an iterator over the mapping's values
+
+TODO: implement that mapping API
 
 >>> with sqlite_db("test") as db:
 ...    db.clear()
