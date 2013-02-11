@@ -48,60 +48,60 @@ a.itervalues() 	return an iterator over the mapping's values
 
 TODO: implement that mapping API
 
-     >>> with sqlite_db("test") as db:
-     ...    db.clear()
-     ...    db.items()
-     ... 
-     []
-     >>> with sqlite_db("test") as db:
-     ...    db['a']="test"
-     ...    db.items()
-     ... 
-     [(u'a', u'test')]
-     >>> with sqlite_db("test") as db:
-     ...    db['as']="test"
-     ...    db.items()
-     ... 
-     [(u'a', u'test'), (u'as', u'test')]
-     >>> with sqlite_db("test") as db:
-     ...    db['b']=[1,2,3,4,5]
-     ...    del db['b']
-     ... 
-     >>> with sqlite_db("test") as db:
-     ...    db.items()
-     ...    len(db)
-     ... 
-     [(u'a', u'test'), (u'as', u'test')]
-     2
-     >>> with sqlite_db("test") as db:
-     ...    db.keys()
-     ... 
-     [u'a', u'as']
-     >>> with sqlite_db("test") as db:
-     ...    db.values()
-     ... 
-     [u'test', u'test']
-     >>> with sqlite_db("test") as db:
-     ...    db.get('b',5)
-     ... 
-     5
-     >>> with sqlite_db("test") as db:
-     ...    db.get('b')
-     ... 
-     >>> with sqlite_db("test") as db:
-     ...    db.get('c',5)
-     ... 
-     5
-     >>> with sqlite_db("test") as db:
-     ...    'as' in db
-     ... 
-     True
-     >>> with sqlite_db("test") as db:
-     ...    'asdf' not in db
-     ... 
-     True
-     >>> with sqlite_db("test") as db:
-     ...    db.has_key('as')
-     ...
-     True
-     >>> 
+   >>> with sqlite_db("test") as db:
+   ...    db.clear()
+   ...    db.items()
+   ... 
+   []
+   >>> with sqlite_db("test") as db:
+   ...    db['a']="test"
+   ...    db.items()
+   ... 
+   [(u'a', u'test')]
+   >>> with sqlite_db("test") as db:
+   ...    db['as']="test"
+   ...    db.items()
+   ... 
+   [(u'a', u'test'), (u'as', u'test')]
+   >>> with sqlite_db("test") as db:
+   ...    db['b']=[1,2,3,4,5]
+   ...    del db['b']
+   ... 
+   >>> with sqlite_db("test") as db:
+   ...    db.items()
+   ...    len(db)
+   ... 
+   [(u'a', u'test'), (u'as', u'test')]
+   2
+   >>> with sqlite_db("test") as db:
+   ...    db.keys()
+   ... 
+   [u'a', u'as']
+   >>> with sqlite_db("test") as db:
+   ...    db.values()
+   ... 
+   [u'test', u'test']
+   >>> with sqlite_db("test") as db:
+   ...    db.get('b',5)
+   ... 
+   5
+   >>> with sqlite_db("test") as db:
+   ...    db.get('b')
+   ... 
+   >>> with sqlite_db("test") as db:
+   ...    db.get('c',5)
+   ... 
+   5
+   >>> with sqlite_db("test") as db:
+   ...    'as' in db
+   ... 
+   True
+   >>> with sqlite_db("test") as db:
+   ...    'asdf' not in db
+   ... 
+   True
+   >>> with sqlite_db("test") as db:
+   ...    db.has_key('as')
+   ...
+   True
+   >>> 
