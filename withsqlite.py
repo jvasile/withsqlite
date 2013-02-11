@@ -4,7 +4,7 @@
 withsqlite - uses an sqlite db as a back end for a dict-like object,
 kind of like shelve but with json and sqlite3.
 
-Copyright 2011 James Vasile
+Copyright 2011-2013 James Vasile
 Released under the GNU General Public License, version 3 or later.
 See https://www.gnu.org/licenses/gpl-3.0.html for terms.
 
