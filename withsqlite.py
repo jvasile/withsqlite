@@ -14,7 +14,10 @@ This file was developed as part of planeteria <http://github.com/jvasile/planete
 
 """
 import os, sys, sqlite3, time
-import simplejson as json
+try:
+   import simplejson as json
+except ImportError:
+   import json
 
 def to_json(python_object):
    if isinstance(python_object, time.struct_time):
