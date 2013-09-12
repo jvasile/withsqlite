@@ -1,0 +1,10 @@
+Unimplemented mapping API:
+a.copy()    a (shallow) copy of a   
+a.update([b])   updates a with key/value pairs from b, overwriting existing keys, returns None
+a.fromkeys(seq[, value])    Creates a new dictionary with keys from seq and values set to value
+a.setdefault(k[, x])    a[k] if k in a, else x (also setting it)
+a.pop(k[, x])   a[k] if k in a, else x (and remove k)
+a.popitem()     remove and return an arbitrary (key, value) pair
+a.iteritems()   return an iterator over (key, value) pairs
+a.iterkeys()    return an iterator over the mapping's keys
+a.itervalues()  return an iterator over the mapping's values
