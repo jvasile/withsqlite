@@ -9,7 +9,8 @@ See https://www.gnu.org/licenses/gpl-3.0.html for terms.
 
 Repo is at <http://github.com/jvasile/withsqlite>.  Patches welcome!
 
-This file was developed as part of planeteria <http://github.com/jvasile/planeteria>
+This file was developed as part of planeteria
+<http://github.com/jvasile/planeteria>
 
 
 Backends a dict on an sqlite db.  This class aims to present like a
@@ -33,24 +34,13 @@ state of the sqlite database.  Changes are committed to disk when you
 close the database connection, manually call commit, or (if you've set
 autocommit to True) after each assignment.
 
-# BUGS:
+# KNOWN LIMITATION:
 
 vals are json serialized before being written, so if you can't
 serialize it, you can't put it in the dict.
 
 Unimplemented mapping API: 
-
-    a.copy() 	a (shallow) copy of a 	
-    a.update([b]) 	updates a with key/value pairs from b, overwriting existing keys, returns None 
-    a.fromkeys(seq[, value]) 	Creates a new dictionary with keys from seq and values set to value 
-    a.setdefault(k[, x]) 	a[k] if k in a, else x (also setting it)
-    a.pop(k[, x]) 	a[k] if k in a, else x (and remove k)
-    a.popitem() 	remove and return an arbitrary (key, value) pair 
-    a.iteritems() 	return an iterator over (key, value) pairs
-    a.iterkeys() 	return an iterator over the mapping's keys
-    a.itervalues() 	return an iterator over the mapping's values
-
-TODO: implement that mapping API
+    See in TODO.txt
 
 # Examples
 
