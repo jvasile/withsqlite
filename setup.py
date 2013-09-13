@@ -1,6 +1,21 @@
 #!/usr/bin/env python
-from distutils.core import setup
+from distutils.core import setup, Command
 
+
+class TestRunner(Command):
+    user_options = []
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        import sys
+        import subprocess
+        errno = subprocess.call([sys.executable, 'runtests.py'])
+        raise SystemExit(errno)
 
 setup(
     name='withsqlite',
@@ -10,6 +25,7 @@ setup(
     url='http://github.com/jvasile/withsqlite',
     long_description=open('README.mdwn').read(),
     py_modules=['withsqlite'],
+    cmdclass={'test': TestRunner},
     license="GPL-3",
     classifiers=[
         'Development Status :: 4 - Beta',

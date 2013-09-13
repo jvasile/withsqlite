@@ -14,9 +14,11 @@ This file was developed as part of planeteria
 <http://github.com/jvasile/planeteria>
 
 """
+from __future__ import print_function, unicode_literals
 import os
 import sqlite3
 import time
+from contextlib import contextmanager
 try:
     import simplejson as json
 except ImportError:
@@ -53,87 +55,16 @@ class sqlite_db():
     state of the sqlite database.  Changes are committed to disk when you
     close the database connection or (if you've set autocommit to True) after
     each assignment.
-
-    KNOWN LIMITATION:
-
-    vals are json serialized before being written, so if you can't
-    serialize it, you can't put it in the dict.
-
-    >>> with sqlite_db("test") as db:
-    ...    db.clear()
-    ...    db.items()
-    ...
-    []
-    >>> with sqlite_db("test") as db:
-    ...    db['a'] = "test"
-    ...    db.items()
-    ...
-    [(u'a', u'test')]
-    >>> with sqlite_db("test") as db:
-    ...    db['as'] = "test"
-    ...    db.items()
-    ...
-    [(u'a', u'test'), (u'as', u'test')]
-    >>> with sqlite_db("test") as db:
-    ...    db['b'] = [1,2,3,4,5]
-    ...    del db['b']
-    ...
-    >>> with sqlite_db("test") as db:
-    ...    db.items()
-    ...    len(db)
-    ...
-    [(u'a', u'test'), (u'as', u'test')]
-    2
-    >>> with sqlite_db("test") as db:
-    ...    db.keys()
-    ...
-    [u'a', u'as']
-    >>> with sqlite_db("test") as db:
-    ...    db.values()
-    ...
-    [u'test', u'test']
-    >>> with sqlite_db("test") as db:
-    ...    db.get('b', 5)
-    ...
-    5
-    >>> with sqlite_db("test") as db:
-    ...    db.get('b')
-    ...
-    >>> with sqlite_db("test") as db:
-    ...    db.get('c',5)
-    ...
-    5
-    >>> with sqlite_db("test") as db:
-    ...    'as' in db
-    ...
-    True
-    >>> with sqlite_db("test") as db:
-    ...    'asdf' not in db
-    ...
-    True
-    >>> with sqlite_db("test") as db:
-    ...    db.has_key('as')
-    ...
-    True
-    >>>
     """
 
-    def __init__(self, fname, autocommit=False, table="store"):
+    def __init__(self, fname, dir=None, autocommit=False, table="store"):
+        if dir:
+            fname = os.path.join(os.path.abspath(os.path.normpath(dir)), fname)
         self.fname = '{}.sqlite3'.format(fname)
         self.autocommit = autocommit
         self.table = table
         self.conn = None
         self.crsr = None
-
-    def __enter__(self):
-        if not os.path.exists(self.fname):
-            self.make_db()
-        self._connect()
-        return self
-
-    def __exit__(self, type, value, traceback):
-        self.commit()
-        self.crsr.close()
 
     def _connect(self):
         if not self.conn:
@@ -152,20 +83,77 @@ class sqlite_db():
         conn.commit()
         crsr.close()
 
-    def commit(self):
-        """This should rarely be necessary."""
-        self.conn.commit()
-
-    def __delitem__(self, key):
-        """del a[k]   remove a[k] from a"""
-        qry = "delete from {} where key=?"
-        self.crsr.execute(qry.format(self.table), [key])
+    def isstring(self, value):
+        "Check if the value is a string"
+        try:
+            return isinstance(value, basestring)
+        except NameError:
+            return isinstance(value, str)
 
     def jsonize(self, val):
         "If it's just a string, serialize it ourselves"
-        if isinstance(val, basestring):
+        if self.isstring(val):
             return '"{}"'.format(val)
         return json.dumps(val, default=to_json, sort_keys=True, indent=3)
+
+    def has_key(self, key):
+        print("W601 .has_key() is deprecated, use 'in'")
+        return self.__contains__(key)
+
+    def keys(self):
+        """a.keys()   a copy of a's list of keys"""
+        self.crsr.execute("select key from {}".format(self.table))
+        return [f[0] for f in self.crsr.fetchall()]
+
+    def values(self):
+        """a.values()     a copy of a's list of values"""
+        self.crsr.execute("select val from {}".format(self.table))
+        return [json.loads(f[0]) for f in self.crsr.fetchall()]
+
+    def items(self):
+        """a.items()  a copy of a's list of (key, value) pairs"""
+        self.crsr.execute("select * from {}".format(self.table))
+        return [(f[0], json.loads(f[1])) for f in self.crsr.fetchall()]
+
+    def get(self, k, x=None):
+        """a.get(k[, x])  a[k] if k in a, else x """
+        try:
+            return self.__getitem__(k)
+        except KeyError:
+            return x
+
+    def clear(self):
+        """a.clear()  remove all items from a"""
+        self.crsr.execute("delete from {}".format(self.table))
+
+    def begin(self):
+        "Starts the transaction"
+        if not os.path.exists(self.fname):
+            self.make_db()
+        self._connect()
+
+    def save(self):
+        "Ends the transaction"
+        self.conn.commit()
+        self.crsr.close()
+
+    @contextmanager
+    def transaction(self):
+        """You can use an instance of sqlite_db as follow:
+        >>> a = sqlite_db("test")
+            with a.transaction():
+                a['key'] = 'value'
+        """
+        self.begin()
+        yield
+        self.save()
+
+    def __enter__(self):
+        self.begin()
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.save()
 
     def __setitem__(self, key, val):
         """a[k] = v   set a[k] to v   """
@@ -195,41 +183,18 @@ class sqlite_db():
         self.crsr.execute(qry.format(self.table), [key])
         return self.crsr.fetchone()[0] != 0
 
-    def has_key(self, key):
-        return self.__contains__(key)
-
     def __len__(self):
         """len(a)     the number of items in a"""
         self.crsr.execute("select COUNT(*) from {}".format(self.table))
         return self.crsr.fetchone()[0]
 
-    def keys(self):
-        """a.keys()   a copy of a's list of keys"""
-        self.crsr.execute("select key from {}".format(self.table))
-        return [f[0] for f in self.crsr.fetchall()]
+    def __delitem__(self, key):
+        """del a[k]   remove a[k] from a"""
+        qry = "delete from {} where key=?"
+        self.crsr.execute(qry.format(self.table), [key])
 
-    def values(self):
-        """a.values()     a copy of a's list of values"""
-        self.crsr.execute("select val from {}".format(self.table))
-        return [json.loads(f[0]) for f in self.crsr.fetchall()]
-
-    def items(self):
-        """a.items()  a copy of a's list of (key, value) pairs"""
-        self.crsr.execute("select * from {}".format(self.table))
-        return [(f[0], json.loads(f[1])) for f in self.crsr.fetchall()]
-
-    def get(self, k, x=None):
-        """a.get(k[, x])  a[k] if k in a, else x """
-        try:
-            return self.__getitem__(k)
-        except KeyError:
-            return x
-
-    def clear(self):
-        """a.clear()  remove all items from a"""
-        self.crsr.execute("delete from {}".format(self.table))
-
-
-if __name__ == "__main__":
-    import doctest
-    doctest.testmod()
+    def __repr__(self):
+        r = []
+        for k, v in self.items():
+            r.append('{!r}: {!r}'.format(k, v))
+        return '{{{}}}'.format(", ".join(r))
