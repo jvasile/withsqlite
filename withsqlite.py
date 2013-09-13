@@ -51,8 +51,8 @@ class sqlite_db():
 
     If you change the dict in any way, its state will differ from the
     state of the sqlite database.  Changes are committed to disk when you
-    close the database connection, manually call commit, or (if you've set
-    autocommit to True) after each assignment.
+    close the database connection or (if you've set autocommit to True) after
+    each assignment.
 
     KNOWN LIMITATION:
 
@@ -228,6 +228,7 @@ class sqlite_db():
     def clear(self):
         """a.clear()  remove all items from a"""
         self.crsr.execute("delete from {}".format(self.table))
+
 
 if __name__ == "__main__":
     import doctest
