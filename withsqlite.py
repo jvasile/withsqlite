@@ -199,5 +199,5 @@ class sqlite_db():
             r.append('{!r}: {!r}'.format(k, v))
         return '{{{}}}'.format(", ".join(r))
 
-   def __iter__(self):
-      return iter(self.keys())
+    def __iter__(self):
+        return iter(self.keys())
