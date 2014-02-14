@@ -198,3 +198,6 @@ class sqlite_db():
         for k, v in self.items():
             r.append('{!r}: {!r}'.format(k, v))
         return '{{{}}}'.format(", ".join(r))
+
+   def __iter__(self):
+      return iter(self.keys())
